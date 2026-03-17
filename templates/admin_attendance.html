@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Attendance Panel</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body class="bg-light">
+
+<div class="container my-4">
+
+<div class="d-flex justify-content-between mb-3">
+<h4>Admin Attendance Panel</h4>
+<a class="btn btn-outline-secondary" href="/admin/dashboard">Back</a>
+</div>
+
+<form class="card p-3 shadow-sm mb-3">
+
+<div class="row g-3">
+
+<div class="col-md-3">
+<label>Class</label>
+<select name="class" class="form-select">
+<option {% if selected_class=="SE" %}selected{% endif %}>SE</option>
+<option {% if selected_class=="TE" %}selected{% endif %}>TE</option>
+<option {% if selected_class=="BE" %}selected{% endif %}>BE</option>
+</select>
+</div>
+
+<div class="col-md-3">
+<label>Section</label>
+<select name="section" class="form-select">
+<option {% if selected_section=="A" %}selected{% endif %}>A</option>
+<option {% if selected_section=="B" %}selected{% endif %}>B</option>
+<option {% if selected_section=="C" %}selected{% endif %}>C</option>
+</select>
+</div>
+
+<div class="col-md-3">
+<label>Date</label>
+<input type="date" name="date" value="{{selected_date}}" class="form-control">
+</div>
+
+<div class="col-md-3 d-flex align-items-end">
+<button class="btn btn-primary w-100">Load</button>
+</div>
+
+</div>
+
+</form>
+
+<div class="card shadow-sm p-3">
+
+<table class="table table-bordered table-striped">
+
+<thead class="table-dark">
+<tr>
+<th>Roll</th>
+<th>Name</th>
+<th>Class</th>
+<th>Section</th>
+<th>Attendance</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for r in records %}
+
+<tr>
+
+<td>{{r.roll}}</td>
+
+<td>
+<input id="name-{{r.sid}}" class="form-control form-control-sm" value="{{r.name}}">
+</td>
+
+<td>
+<input id="class-{{r.sid}}" class="form-control form-control-sm" value="{{r.class}}">
+</td>
+
+<td>
+<input id="section-{{r.sid}}" class="form-control form-control-sm" value="{{r.section}}">
+</td>
+
+<td>
+
+{% if r.present %}
+<button class="btn btn-sm btn-danger delete-attendance-btn"
+data-id="{{r.attendance_id}}">
+Delete
+</button>
+{% else %}
+<button class="btn btn-sm btn-success present-btn"
+data-roll="{{r.roll}}">
+Mark Present
+</button>
+{% endif %}
+
+</td>
+
+<td class="d-flex gap-1">
+
+<button class="btn btn-sm btn-primary edit-btn"
+data-id="{{r.sid}}">
+Save
+</button>
+
+<button class="btn btn-sm btn-danger delete-student-btn"
+data-id="{{r.sid}}">
+Delete Student
+</button>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+// Mark Present
+document.querySelectorAll(".present-btn").forEach(btn => {
+
+btn.addEventListener("click", async () => {
+
+const roll = btn.dataset.roll;
+
+const fd = new FormData();
+fd.append("roll", roll);
+fd.append("class", "{{selected_class}}");
+fd.append("section", "{{selected_section}}");
+fd.append("date", "{{selected_date}}");
+
+await fetch("/admin_mark_present",{
+method:"POST",
+body:fd
+});
+
+location.reload();
+
+});
+
+});
+
+// Delete Attendance
+document.querySelectorAll(".delete-attendance-btn").forEach(btn => {
+
+btn.addEventListener("click", async () => {
+
+await fetch(`/admin_delete_attendance/${btn.dataset.id}`,{
+method:"POST"
+});
+
+location.reload();
+
+});
+
+});
+
+// Update Student
+document.querySelectorAll(".edit-btn").forEach(btn => {
+
+btn.addEventListener("click", async () => {
+
+const id = btn.dataset.id;
+
+const fd = new FormData();
+fd.append("sid", id);
+fd.append("name", document.getElementById("name-"+id).value);
+fd.append("class", document.getElementById("class-"+id).value);
+fd.append("section", document.getElementById("section-"+id).value);
+
+await fetch("/admin_update_student",{
+method:"POST",
+body:fd
+});
+
+alert("Student updated");
+
+});
+
+});
+
+// Delete Student
+document.querySelectorAll(".delete-student-btn").forEach(btn => {
+
+btn.addEventListener("click", async () => {
+
+if(!confirm("Delete student permanently?")) return;
+
+await fetch(`/admin_delete_student/${btn.dataset.id}`,{
+method:"POST"
+});
+
+location.reload();
+
+});
+
+});
+
+</script>
+
+</body>
+</html>

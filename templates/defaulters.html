@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Monthly Defaulters</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+</head>
+
+<body class="bg-light">
+
+<div class="container my-4">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h4>Monthly Defaulters (Class Wise)</h4>
+<a class="btn btn-outline-secondary" href="/">Back</a>
+</div>
+
+<!-- FILTER CARD -->
+<div class="card p-3 shadow-sm mb-3">
+
+<div class="row g-3 align-items-end">
+
+<div class="col-md-2">
+<label class="form-label">Class</label>
+<select id="classInput" class="form-select">
+<option>SE</option>
+<option selected>TE</option>
+<option>BE</option>
+</select>
+</div>
+
+<div class="col-md-2">
+<label class="form-label">Section</label>
+<select id="sectionInput" class="form-select">
+<option selected>A</option>
+<option>B</option>
+<option>C</option>
+</select>
+</div>
+
+<div class="col-md-2">
+<label class="form-label">Month</label>
+<input id="monthInput" type="month" class="form-control"/>
+</div>
+
+<div class="col-md-2">
+<label class="form-label">Threshold (%)</label>
+<input id="thresholdInput" type="number" class="form-control" value="75" min="0" max="100"/>
+</div>
+
+<div class="col-md-2">
+<label class="form-label">Search</label>
+<input id="searchInput" type="text" class="form-control" placeholder="Roll or Name"/>
+</div>
+
+<div class="col-md-2 d-flex gap-2">
+<button id="loadBtn" class="btn btn-primary w-50">Load</button>
+<button id="downloadBtn" class="btn btn-success w-50">CSV</button>
+</div>
+
+</div>
+</div>
+
+<div class="mb-2 text-muted" id="summaryText">Loading...</div>
+
+<!-- TABLE -->
+<div class="table-responsive">
+
+<table class="table table-striped table-bordered">
+
+<thead class="table-dark">
+<tr>
+<th>Roll</th>
+<th>Name</th>
+<th>Attended</th>
+<th>Total Sessions</th>
+<th>Percentage</th>
+</tr>
+</thead>
+
+<tbody id="defaultersBody">
+<tr>
+<td colspan="5" class="text-center">No data</td>
+</tr>
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const classInput = document.getElementById("classInput");
+const sectionInput = document.getElementById("sectionInput");
+const monthInput = document.getElementById("monthInput");
+const thresholdInput = document.getElementById("thresholdInput");
+const searchInput = document.getElementById("searchInput");
+const loadBtn = document.getElementById("loadBtn");
+const defaultersBody = document.getElementById("defaultersBody");
+const summaryText = document.getElementById("summaryText");
+const downloadBtn = document.getElementById("downloadBtn");
+
+let allDefaulters = [];
+
+function setCurrentMonthDefault() {
+const now = new Date();
+const yyyy = now.getFullYear();
+const mm = String(now.getMonth() + 1).padStart(2, "0");
+monthInput.value = `${yyyy}-${mm}`;
+}
+
+function renderTable(list) {
+
+defaultersBody.innerHTML = "";
+
+if (!list || list.length === 0) {
+defaultersBody.innerHTML =
+`<tr><td colspan="5" class="text-center">No defaulters found</td></tr>`;
+return;
+}
+
+list.forEach((r) => {
+
+const tr = document.createElement("tr");
+
+tr.innerHTML = `
+<td>${r.roll}</td>
+<td>${r.name}</td>
+<td>${r.attended}</td>
+<td>${r.total_sessions}</td>
+<td><b>${r.percentage}%</b></td>
+`;
+
+defaultersBody.appendChild(tr);
+
+});
+
+}
+
+function applySearch() {
+
+const q = searchInput.value.trim().toLowerCase();
+
+if (!q) {
+renderTable(allDefaulters);
+return;
+}
+
+const filtered = allDefaulters.filter(r =>
+String(r.roll).toLowerCase().includes(q) ||
+String(r.name).toLowerCase().includes(q)
+);
+
+renderTable(filtered);
+
+}
+
+async function loadDefaulters() {
+
+const month = monthInput.value;
+const threshold = thresholdInput.value || 75;
+const selectedClass = classInput.value;
+const selectedSection = sectionInput.value;
+
+summaryText.innerText = "Loading...";
+defaultersBody.innerHTML =
+`<tr><td colspan="5" class="text-center">Loading...</td></tr>`;
+
+const res = await fetch(
+`/monthly_defaulters?month=${month}&threshold=${threshold}&class=${selectedClass}&section=${selectedSection}`
+);
+
+const data = await res.json();
+
+if (data.total_sessions === 0) {
+summaryText.innerText =
+data.message || "No sessions found for this class.";
+allDefaulters = [];
+renderTable([]);
+return;
+}
+
+summaryText.innerText =
+`Class: ${data.class} ${data.section} | Month: ${data.month} | Total Sessions: ${data.total_sessions} | Defaulters: ${data.defaulters.length}`;
+
+allDefaulters = data.defaulters;
+renderTable(allDefaulters);
+applySearch();
+
+}
+
+downloadBtn.addEventListener("click", () => {
+
+const month = monthInput.value;
+const threshold = thresholdInput.value || 75;
+const selectedClass = classInput.value;
+const selectedSection = sectionInput.value;
+
+window.location.href =
+`/download_defaulters_csv?month=${month}&threshold=${threshold}&class=${selectedClass}&section=${selectedSection}`;
+
+});
+
+loadBtn.addEventListener("click", loadDefaulters);
+searchInput.addEventListener("input", applySearch);
+
+setCurrentMonthDefault();
+loadDefaulters();
+
+</script>
+
+</body>
+</html>

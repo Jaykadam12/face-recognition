@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env/
+.env
+
+# Flask
+instance/
+*.db
+*.sqlite3
+
+# Dataset (VERY IMPORTANT)
+dataset/
+encodings.csv
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter (if any)
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Uploads / generated files
+uploads/

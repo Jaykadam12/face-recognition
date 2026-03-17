@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Face Recognition Attendance - Admin Login</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+      body {
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+        min-height: 100vh;
+        background: #f4f6f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+      }
+
+      .login-container {
+        display: flex;
+        flex-wrap: wrap;
+        width: 900px;
+        max-width: 95%;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+      }
+
+      .login-info {
+        flex: 1;
+        padding: 3rem;
+        background: linear-gradient(135deg, #243b55, #141e30);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .login-info h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #00c8ff;
+      }
+
+      .login-info p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #cfd8dc;
+      }
+
+      .login-form {
+        flex: 1;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .login-form h3 {
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: gray;
+      }
+
+      .form-control {
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid #556877;
+        color: #fff;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.5rem;
+        transition: 0.2s;
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: #00c8ff;
+        box-shadow: 0 0 8px rgba(0, 200, 255, 0.5);
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+
+      .btn-primary {
+        border-radius: 8px;
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #00c8ff;
+        border: none;
+        font-weight: 600;
+        color: #0b0b0b;
+        transition: 0.2s;
+      }
+
+      .btn-primary:hover {
+        background-color: #00a1cc;
+      }
+
+      .alert {
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 1px solid #00c8ff;
+        color: #fff;
+      }
+
+      @media (max-width: 768px) {
+        .login-container {
+          flex-direction: column;
+        }
+        .login-info {
+          padding: 2rem;
+          text-align: center;
+        }
+        .login-form {
+          padding: 2rem;
+        }
+      }
+      .heading{
+        color: black;
+      }
+      /* Optional: subtle icon above login form */
+      .login-icon {
+        font-size: 3rem;
+        color: #00c8ff;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <!-- Left side info -->
+      <div class="login-info">
+        <h1>
+          <i class="fa-solid fa-face-recognition"></i> Face Recognition
+          Attendance
+        </h1>
+        <p>
+          Welcome to the Admin Panel. Manage student attendance efficiently with
+          real-time face recognition technology. Secure, fast, and reliable.
+        </p>
+      </div>
+
+      <!-- Right side login form -->
+      <div class="login-form">
+        <div class="login-icon">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h3 class="heading">Admin Login</h3>
+
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, msg in messages %}
+        <div
+          class="alert alert-{{ category }} alert-dismissible fade show"
+          role="alert"
+        >
+          {{ msg }}
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+          ></button>
+        </div>
+        {% endfor %} {% endif %} {% endwith %}
+
+        <form method="POST">
+          <input
+            class="form-control"
+            name="username"
+            placeholder="Username"
+            required
+          />
+          <input
+            type="password"
+            class="form-control"
+            name="password"
+            placeholder="Password"
+            required
+          />
+          <button class="btn btn-primary mt-2">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

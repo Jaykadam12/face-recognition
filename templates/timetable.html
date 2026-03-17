@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Timetable</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+
+<body>
+
+<div class="container my-4">
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h4 class="mb-0">Timetable (Admin)</h4>
+
+<div class="d-flex gap-2">
+<a href="/admin/dashboard" class="btn btn-outline-primary">Dashboard</a>
+<a class="btn btn-outline-secondary" href="/">Back</a>
+<a href="/admin/logout" class="btn btn-danger">Logout</a>
+</div>
+</div>
+
+<!-- FLASH -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, msg in messages %}
+<div class="alert alert-{{ category }} alert-dismissible fade show">
+{{ msg }}
+<button class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<!-- CLASS + SECTION SELECTOR -->
+<div class="card p-3 shadow-sm mb-3">
+
+<div class="d-flex flex-wrap gap-2">
+
+{% set classes = ["SE","TE","BE"] %}
+{% set sections = ["A","B","C"] %}
+
+{% for c in classes %}
+{% for s in sections %}
+<a href="/timetable?class={{c}}&section={{s}}&day={{selected_day}}"
+class="btn btn-sm {% if selected_class==c and selected_section==s %}btn-success{% else %}btn-outline-success{% endif %}">
+{{c}} {{s}}
+</a>
+{% endfor %}
+{% endfor %}
+
+</div>
+
+<div class="mt-2 text-muted">
+Showing timetable for:
+<b>{{selected_class}} {{selected_section}}</b>
+</div>
+
+</div>
+
+<!-- DAY SELECTOR -->
+<div class="card p-3 shadow-sm mb-3">
+
+<div class="d-flex flex-wrap gap-2">
+
+{% set days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"] %}
+
+{% for d in days %}
+<a href="/timetable?class={{selected_class}}&section={{selected_section}}&day={{d}}"
+class="btn btn-sm {% if selected_day==d %}btn-primary{% else %}btn-outline-primary{% endif %}">
+{{ d }}
+</a>
+{% endfor %}
+
+</div>
+
+<div class="mt-2 text-muted">
+Showing slots for:
+<b>{{ selected_day }}</b>
+</div>
+
+</div>
+
+<!-- ADD SLOT -->
+<div class="card p-3 shadow-sm mb-4">
+
+<h5>Add New Slot</h5>
+
+<form method="POST" class="row g-2">
+
+<input type="hidden" name="class" value="{{selected_class}}">
+<input type="hidden" name="section" value="{{selected_section}}">
+<input type="hidden" name="day" value="{{selected_day}}">
+
+<div class="col-md-2">
+<label>Start</label>
+<input type="time" name="start_time" class="form-control" required>
+</div>
+
+<div class="col-md-2">
+<label>End</label>
+<input type="time" name="end_time" class="form-control" required>
+</div>
+
+<div class="col-md-3">
+<label>Subject</label>
+<input type="text" name="subject" class="form-control" required>
+</div>
+
+<div class="col-md-3">
+<label>Teacher</label>
+<input type="text" name="teacher" class="form-control" required>
+</div>
+
+<div class="col-md-2 d-flex align-items-end">
+<button class="btn btn-success w-100">Add Slot</button>
+</div>
+
+</form>
+
+</div>
+
+<!-- TABLE -->
+<div class="card p-3 shadow-sm">
+
+<h5>Saved Timetable</h5>
+
+<div class="table-responsive">
+<table class="table table-bordered table-striped">
+
+<thead class="table-dark">
+<tr>
+<th>Start</th>
+<th>End</th>
+<th>Subject</th>
+<th>Teacher</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for r in rows %}
+<tr>
+
+<td><input class="form-control form-control-sm" value="{{r[4]}}" id="start-{{r[0]}}"></td>
+<td><input class="form-control form-control-sm" value="{{r[5]}}" id="end-{{r[0]}}"></td>
+<td><input class="form-control form-control-sm" value="{{r[6]}}" id="subject-{{r[0]}}"></td>
+<td><input class="form-control form-control-sm" value="{{r[7]}}" id="teacher-{{r[0]}}"></td>
+
+<td class="d-flex gap-2">
+
+<button class="btn btn-primary btn-sm save-btn" data-id="{{r[0]}}">Save</button>
+<button class="btn btn-danger btn-sm delete-btn" data-id="{{r[0]}}">Delete</button>
+
+</td>
+
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+</div>
+
+</div>
+
+</div>
+</body>
+</html>
